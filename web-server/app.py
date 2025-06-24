@@ -6,6 +6,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+
 def get_prediction(text):
     token_response = requests.post(
         'https://iam.cloud.ibm.com/identity/token',
