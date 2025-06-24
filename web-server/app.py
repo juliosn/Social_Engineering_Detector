@@ -6,11 +6,6 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-API_KEY = "BvOSmB-oW9J0MUWaWVm7nD7hnfzgXvT1FB_R_7KI6d3N"
-DEPLOYMENT_URL = "https://us-south.ml.cloud.ibm.com/ml/v4/deployments/1a56c5f9-60b3-4ecb-a061-83b1e5a0984f/predictions?version=2021-05-01"
-DATAMART_URL = "https://us-south.ml.cloud.ibm.com/ml/v4/data_marts/af039c0e-805b-4571-9844-789fd00e22f7/records?version=2021-05-01"
-SUBSCRIPTION_ID = "1a56c5f9-60b3-4ecb-a061-83b1e5a0984f"
-
 def get_prediction(text):
     token_response = requests.post(
         'https://iam.cloud.ibm.com/identity/token',
@@ -30,7 +25,7 @@ def get_prediction(text):
                 "meta": {
                     "fields": ["Email Text"],
                     "subscription": {
-                        "id": "01979559-f1c3-75aa-b0c1-2f1d178f69c3"
+                        "id": ""
                     },
                     "record_id": record_id
                 }
