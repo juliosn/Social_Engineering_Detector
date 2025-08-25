@@ -1,2 +1,5 @@
 dataset/
 request.json
+testing/
+.env
+__pycache__/
