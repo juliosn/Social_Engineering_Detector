@@ -16,9 +16,9 @@
 * Scikit-learn
 * Pandas
 
-##  Team
+## Team
 
-| [<img src="https://avatars.githubusercontent.com/u/117481975" width=115><br><sub>Bruno Santos Portugal</sub>](https://github.com/bportugal01)| [<img src="https://avatars.githubusercontent.com/u/108619704" width=115><br><sub>Júlia da Silva Dias Gonçalves</sub>](https://github.com/Juliasdg) | [<img src="https://avatars.githubusercontent.com/u/99426563" width=115><br><sub>Júlio da Silva Neves</sub>](https://github.com/juliosn) | [<img src="https://avatars.githubusercontent.com/u/99426578" width=115><br><sub>Maria Eduarda Silva Werlang</sub>](https://github.com/MariaWerlang) | [<img src="https://avatars.githubusercontent.com/u/99426651" width=115><br><sub>Mariane Batista de Souza</sub>](https://github.com/MarianeBS) |
+| [<img src="https://avatars.githubusercontent.com/u/117481975" width="115"><br><sub>Bruno Santos Portugal</sub>](https://github.com/bportugal01) | [<img src="https://avatars.githubusercontent.com/u/108619704" width="115"><br><sub>Júlia da Silva Dias Gonçalves</sub>](https://github.com/Juliasdg) | [<img src="https://avatars.githubusercontent.com/u/99426563" width="115"><br><sub>Júlio da Silva Neves</sub>](https://github.com/juliosn) | [<img src="https://avatars.githubusercontent.com/u/99426578" width="115"><br><sub>Maria Eduarda Silva Werlang</sub>](https://github.com/MariaWerlang) | [<img src="https://avatars.githubusercontent.com/u/99426651" width="115"><br><sub>Mariane Batista de Souza</sub>](https://github.com/MarianeBS) |
 | :---: | :---: | :---: | :---: | :---: |
 
 
