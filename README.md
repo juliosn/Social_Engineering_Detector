@@ -15,6 +15,7 @@
 * IBM Watson AutoAI
 * Scikit-learn
 * Pandas
+* spaCy
 
 ## Team
 
