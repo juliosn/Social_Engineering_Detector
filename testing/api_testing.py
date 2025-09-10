@@ -1,4 +1,40 @@
 import csv
+import uuid
+import requests
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+import config
+
+API_KEY = config.API_KEY
+DEPLOYMENT_URL = config.DEPLOYMENT_URL
+
+def get_prediction(text):
+    token_response = requests.post(
+        'https://iam.cloud.ibm.com/identity/token',
+        data={"apikey": API_KEY, "grant_type": 'urn:ibm:params:oauth:grant-type:apikey'}
+    )
+    mltoken = token_response.json()['access_token']
+    header = {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + mltoken}
+
+    record_id = str(uuid.uuid4())
+    payload = {
+        "input_data": [
+            {
+                "fields": ["Conteudo"],
+                "values": [[text]],
+                "meta": {
+                    "record_id": record_id
+                }
+            }
+        ]
+    }
+
+    response = requests.post(DEPLOYMENT_URL, json=payload, headers=header)
+    result = response.json()
+    prediction = int(result['predictions'][0]['values'][0][0])
+    probability = result['predictions'][0]['values'][0][1][prediction]
+    return prediction, probability
+
 
 messages = []
 
@@ -111,13 +147,47 @@ base_messages = [
     "Looking forward to seeing you at the picnic!"
 ]
 
-for i in range(100):
-    messages.append({
-        "message": base_messages[i % len(base_messages)]
-    })
+results = []
 
-with open("./testing/testing_messages.csv", mode="w", newline="", encoding="utf-8") as file:
-    writer = csv.DictWriter(file, fieldnames=["message"])
+for msg_text in base_messages:
+    try:
+        prediction, probability = get_prediction(msg_text)
+        print(f"Mensagem: {msg_text}\nPredição: {prediction}, Probabilidade: {probability}\n")
+        results.append({
+            "message": msg_text,
+            "prediction": prediction,
+            "probability": probability
+        })
+    except Exception as e:
+        print(f"Erro na mensagem: {msg_text}\nErro: {e}")
+        results.append({
+            "message": msg_text,
+            "prediction": None,
+            "probability": None,
+            "error": str(e)
+        })
+
+# Salvando resultados no CSV
+with open("./testing/testing_messages_results.csv", mode="w", newline="", encoding="utf-8") as file:
+    fieldnames = ["message", "prediction", "probability", "error"]
+    writer = csv.DictWriter(file, fieldnames=fieldnames)
     writer.writeheader()
-    for msg in messages:
-        writer.writerow(msg)
+    for row in results:
+        if "error" not in row:
+            row["error"] = ""
+        writer.writerow(row)
+
+print("Processamento finalizado. Resultados salvos em ./testing/testing_messages_results.csv")
+
+# Contagem de predições
+total_msgs = len(results)
+eng_social = sum(1 for r in results if r["prediction"] == 1)
+nao_eng_social = sum(1 for r in results if r["prediction"] == 0)
+
+percent_eng_social = (eng_social / total_msgs) * 100
+percent_nao_eng_social = (nao_eng_social / total_msgs) * 100
+
+print("\n=== Resumo Geral ===")
+print(f"Total de mensagens processadas: {total_msgs}")
+print(f"Engenharia Social: {eng_social} ({percent_eng_social:.2f}%)")
+print(f"Não Engenharia Social: {nao_eng_social} ({percent_nao_eng_social:.2f}%)")
