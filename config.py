@@ -13,6 +13,7 @@ SUBSCRIPTION_ID = os.getenv("SUBSCRIPTION_ID")
 RESULT_PATH = os.getenv("RESULT_PATH")
 MODEL_LOCATION = os.getenv("MODEL_LOCATION")
 TRAINING_STATUS = os.getenv("TRAINING_STATUS")
+MONGO_URI = os.getenv("MONGO_URI")
 
 required_vars = {
     "API_KEY": API_KEY,

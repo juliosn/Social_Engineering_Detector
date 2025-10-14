@@ -1,13 +1,39 @@
 import csv
 import uuid
+from flask import Flask
 import requests
-import sys, os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 import config
+from datetime import datetime
+from pymongo import MongoClient
+
+# ==========================
+# Flask e Configurações
+# ==========================
+app = Flask(__name__)
 
 API_KEY = config.API_KEY
 DEPLOYMENT_URL = config.DEPLOYMENT_URL
 
+# ==========================
+# Conexão com MongoDB
+# ==========================
+client = MongoClient(config.MONGO_URI)
+db = client["social_engineering"]
+collection = db["predictions"]
+
+def save_prediction(message, prediction, probability):
+    """Salva a predição no MongoDB."""
+    doc = {
+        "message": message,
+        "prediction": prediction,
+        "probability": probability,
+        "timestamp": datetime.now().isoformat()
+    }
+    collection.insert_one(doc)
+
+# ==========================
+# Função de Predição
+# ==========================
 def get_prediction(text):
     token_response = requests.post(
         'https://iam.cloud.ibm.com/identity/token',
@@ -22,22 +48,25 @@ def get_prediction(text):
             {
                 "fields": ["Conteudo"],
                 "values": [[text]],
-                "meta": {
-                    "record_id": record_id
-                }
+                "meta": {"record_id": record_id}
             }
         ]
     }
 
     response = requests.post(DEPLOYMENT_URL, json=payload, headers=header)
     result = response.json()
+
+    # Verificação de erro na resposta
+    if "predictions" not in result:
+        raise ValueError(f"Resposta inesperada: {result}")
+
     prediction = int(result['predictions'][0]['values'][0][0])
     probability = result['predictions'][0]['values'][0][1][prediction]
     return prediction, probability
 
-
-messages = []
-
+# ==========================
+# Mensagens de Teste
+# ==========================
 base_messages = [
     "Hi Alex, just confirming our lunch at 12 tomorrow.",
     "Dear Team, the server maintenance is scheduled for Saturday night.",
@@ -149,15 +178,23 @@ base_messages = [
 
 results = []
 
+# ==========================
+# Loop de Predição e Salvamento
+# ==========================
 for msg_text in base_messages:
     try:
         prediction, probability = get_prediction(msg_text)
         print(f"Mensagem: {msg_text}\nPredição: {prediction}, Probabilidade: {probability}\n")
+
+        # Salvar no MongoDB
+        save_prediction(msg_text, prediction, probability)
+
         results.append({
             "message": msg_text,
             "prediction": prediction,
             "probability": probability
         })
+
     except Exception as e:
         print(f"Erro na mensagem: {msg_text}\nErro: {e}")
         results.append({
@@ -167,7 +204,9 @@ for msg_text in base_messages:
             "error": str(e)
         })
 
-# Salvando resultados no CSV
+# ==========================
+# Salvar resultados em CSV
+# ==========================
 with open("./testing/testing_messages_results.csv", mode="w", newline="", encoding="utf-8") as file:
     fieldnames = ["message", "prediction", "probability", "error"]
     writer = csv.DictWriter(file, fieldnames=fieldnames)
@@ -179,7 +218,9 @@ with open("./testing/testing_messages_results.csv", mode="w", newline="", encodi
 
 print("Processamento finalizado. Resultados salvos em ./testing/testing_messages_results.csv")
 
-# Contagem de predições
+# ==========================
+# Resumo Final
+# ==========================
 total_msgs = len(results)
 eng_social = sum(1 for r in results if r["prediction"] == 1)
 nao_eng_social = sum(1 for r in results if r["prediction"] == 0)
@@ -191,3 +232,4 @@ print("\n=== Resumo Geral ===")
 print(f"Total de mensagens processadas: {total_msgs}")
 print(f"Engenharia Social: {eng_social} ({percent_eng_social:.2f}%)")
 print(f"Não Engenharia Social: {nao_eng_social} ({percent_nao_eng_social:.2f}%)")
+print("Predições também foram registradas no MongoDB.")
