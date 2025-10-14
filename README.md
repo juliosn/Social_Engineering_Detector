@@ -16,6 +16,7 @@
 * Scikit-learn
 * Pandas
 * spaCy
+* MongoDB
 
 ## Team
 
